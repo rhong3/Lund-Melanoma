@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 # Proteomics data cleaning
 
 proteomics = pd.read_csv('rm_Clean3.csv', header=0, index_col=0)
