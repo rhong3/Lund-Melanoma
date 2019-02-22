@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-wna_clinical = pd.read_csv('./T_wna_clinical.tsv', sep='\t', header=0, index_col=0)
+wna_clinical = pd.read_csv('./wna_clinical.tsv', sep='\t', header=0, index_col=0)
 
 bins = [-1000, 0, 1000, 2000, 3000]
 
@@ -66,6 +66,6 @@ wna_clinical['bin days from sample collection (surgery) to death or censoring'] 
 wna_clinical = wna_clinical.drop('DSS.DAYS.v1 days from first metastasis to death or censoring', axis=1)
 wna_clinical = wna_clinical.drop('DSS.DAYS.v2   days from sample collection (surgery) to death or censoring', axis=1)
 
-wna_clinical.to_csv('bin_T_wna_clinical.tsv', sep='\t', index=True, header=True)
+wna_clinical.to_csv('bin_wna_clinical.tsv', sep='\t', index=True, header=True)
 
 
