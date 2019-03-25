@@ -14,6 +14,3 @@ cols = [cols[-1]] + cols[:-1]
 J_centroid = J_centroid[cols]
 
 J_centroid.to_csv('./ICA/Initial/J_Clean_proteomics_IC_centroid.csv', index=True, header=True)
-
-
-
