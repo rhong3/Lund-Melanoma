@@ -14,8 +14,6 @@ proteomics['MM814'] = proteomics['LG7438']
 
 proteomics = proteomics.drop(['accession', 'MM807.1', 'MM790.1', 'LG7438', 'MM692.1', 'MM778.1'], axis=1)
 
-print()
-
 lst = list(proteomics.columns.values)
 
 # Clinical data cleaning
