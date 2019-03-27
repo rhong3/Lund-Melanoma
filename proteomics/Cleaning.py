@@ -5,7 +5,16 @@ import pandas as pd
 proteomics = pd.read_csv('rm_Clean3.csv', header=0, index_col=0)
 
 proteomics = proteomics.dropna(axis=0)
-proteomics = proteomics.drop('accession', axis=1)
+
+proteomics['MM692'] = (proteomics['MM692']+proteomics['MM692.1'])/2
+proteomics['MM778'] = (proteomics['MM778']+proteomics['MM778.1'])/2
+proteomics['MM807'] = (proteomics['MM807']+proteomics['MM807.1'])/2
+proteomics['MM790'] = (proteomics['MM790']*77.76+proteomics['MM790.1']*78.1923076923077)/(77.76+78.1923076923077)*2
+proteomics['MM814'] = proteomics['LG7438']
+
+proteomics = proteomics.drop(['accession', 'MM807.1', 'MM790.1', 'LG7438', 'MM692.1', 'MM778.1'], axis=1)
+
+print()
 
 lst = list(proteomics.columns.values)
 
