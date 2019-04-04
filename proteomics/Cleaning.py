@@ -10,7 +10,7 @@ proteomics['MM692'] = (proteomics['MM692']+proteomics['MM692.1'])/2
 proteomics['MM778'] = (proteomics['MM778']+proteomics['MM778.1'])/2
 proteomics['MM807'] = (proteomics['MM807']+proteomics['MM807.1'])/2
 proteomics['MM790'] = (proteomics['MM790']*77.76+proteomics['MM790.1']*78.1923076923077)/(77.76+78.1923076923077)*2
-proteomics['MM814'] = proteomics['LG7438']
+proteomics['MM814'] = (proteomics['LG7438']*83.4+proteomics['MM814']*96.2)/(96.2+83.4)*2
 
 proteomics = proteomics.drop(['accession', 'MM807.1', 'MM790.1', 'LG7438', 'MM692.1', 'MM778.1'], axis=1)
 
@@ -27,8 +27,15 @@ clinical = raw_clinical.drop(0, axis=0)
 
 clinical['sample'] = clinical['sample'].str.upper()
 
-clinical.index = clinical['sample']
+Tumor = pd.read_excel('Sample tumor content.xlsx', header=0)
+Tumor.columns = ['TumorID', 'Tumor_content']
+Tumor = Tumor.set_index('TumorID')
+Tumor.loc['MM814'] = (Tumor.loc['MM814']+Tumor.loc['LG7438'])/2
+Tumor = Tumor.drop(['LG7438'])
 
+clinical = clinical.join(Tumor, how='left', on='sample')
+
+clinical.index = clinical['sample']
 cls = list(clinical.index.values)
 
 clinical = clinical.drop('sample', axis=1)
@@ -64,3 +71,4 @@ wona_clinical = wona_clinical[wona_clinical.index.isin(lst)]
 proteomics = proteomics[proteomics.columns[proteomics.columns.isin(cls)]]
 
 proteomics.to_csv('Clean_proteomics.tsv', sep='\t', index=True, header=True)
+
