@@ -18,7 +18,6 @@ proteomics = proteomics[ind]
 
 proteomics = proteomics.reindex(col)
 
-
 print(proteomics)
 
 proteomics.to_csv('./GSEA_proteomics.csv', index=True, header=True)

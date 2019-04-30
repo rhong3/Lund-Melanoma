@@ -1,3 +1,4 @@
+# All genes
 # Other features BRAF
 
 library("stats")
@@ -7,9 +8,7 @@ library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Reso
 ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
 wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
 proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
-Ecore_genes = c('BRAF', 'NRAS', 'TP53', 'NF1', 'CDKN2A', 'ARID2', 'PTEN', 'PPP6C', 'RAC1', 'IDH1', 'DDX3X', 'MAP2K1', 'RB1', 'CTNNB1', 'CASP8', 'PCDHGA1', 'SERPINB1', 'IRF7', 'HRAS', 'PTPN11',
-                'ITGA4', 'FAM113B', 'MSR1', 'RPS27', 'SIRPB1', 'MRPS31', 'NOTCH2NL', 'KNSTRN', 'ZFX', 'RAPGEFS', 'RCAN2', 'PPIAL4G', 'ACD', 'WDR12', 'COL9A2', 'STK19', 'CCDC28A', 'LRRC37A3', 'OXA1L',
-                'NDUFB9', 'EMG1', 'TMEM216', 'RQCD1', 'TBC1D3B', 'GNAI2', 'B2M', 'FAM58A', 'C3orf71')
+
 wna_clinical = wna_clinical[order(wna_clinical['BRAF.status_V600A'],	wna_clinical['BRAF.status_V600E'],	wna_clinical['BRAF.status_V600K'],	wna_clinical['BRAF.status_WT'],	wna_clinical['BRAF.status_nan']),]
 proteomics = proteomics[match(rownames(ica), rownames(proteomics)), match(rownames(wna_clinical), colnames(proteomics))]
 categoryB = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['BRAF.status_nan']==1))),
@@ -17,10 +16,7 @@ categoryB = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", le
                                                                     rep("V600K", length(which(wna_clinical['BRAF.status_V600K']==1))),
                                                                     rep("V600E", length(which(wna_clinical['BRAF.status_V600E']==1))),
                                                                     rep("V600A", length(which(wna_clinical['BRAF.status_V600A']==1)))))
-core_proteomics <- subset(proteomics, rownames(proteomics) %in% Ecore_genes)
-pdf("~/Documents/Lund_Melanoma/Transcriptome/BRAF/Extended_Core_gene_BRAF_HM.pdf", width = 15, paper = 'a4r')
-pheatmap(core_proteomics, cluster_cols = T, cluster_rows = T, annotation_col = categoryB, fontsize_col = 6, main = 'Extended Core_gene vs BRAF')
-dev.off()
+core_proteomics <- proteomics 
 
 B_proteomics = transpose(core_proteomics)
 colnames(B_proteomics) <- rownames(core_proteomics)
@@ -37,7 +33,7 @@ MutBRAF = subset(B_prot, B_prot$BRAF.status_WT == 0)
 MutBRAF = MutBRAF[,-c(26)]
 t.test(WTBRAF, MutBRAF)
 x = list('Overall'=t.test(WTBRAF, MutBRAF)$p.value)
-for (i in 1:25){
+for (i in 18:11052){
   p = t.test(WTBRAF[,i], MutBRAF[,i])$p.value
   x[[colnames(WTBRAF)[i]]] = p
   if (p < 0.1){
@@ -61,9 +57,6 @@ library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Reso
 ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
 wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
 proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
-Ecore_genes = c('BRAF', 'NRAS', 'TP53', 'NF1', 'CDKN2A', 'ARID2', 'PTEN', 'PPP6C', 'RAC1', 'IDH1', 'DDX3X', 'MAP2K1', 'RB1', 'CTNNB1', 'CASP8', 'PCDHGA1', 'SERPINB1', 'IRF7', 'HRAS', 'PTPN11',
-                'ITGA4', 'FAM113B', 'MSR1', 'RPS27', 'SIRPB1', 'MRPS31', 'NOTCH2NL', 'KNSTRN', 'ZFX', 'RAPGEFS', 'RCAN2', 'PPIAL4G', 'ACD', 'WDR12', 'COL9A2', 'STK19', 'CCDC28A', 'LRRC37A3', 'OXA1L',
-                'NDUFB9', 'EMG1', 'TMEM216', 'RQCD1', 'TBC1D3B', 'GNAI2', 'B2M', 'FAM58A', 'C3orf71')
 wna_clinical = wna_clinical[order(wna_clinical['Alive.2016.12.05_alive'],	wna_clinical['Alive.2016.12.05_dead'],	wna_clinical['Alive.2016.12.05_dead..likely.melanoma.'],	wna_clinical['Alive.2016.12.05_dead.other.reason'],	wna_clinical['Alive.2016.12.05_dead.unknown.reason']),]
 proteomics = proteomics[match(rownames(ica), rownames(proteomics)), match(rownames(wna_clinical), colnames(proteomics))]
 categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['Alive.2016.12.05_nan']==1))), 
@@ -72,7 +65,7 @@ categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", le
                                                                     rep("dead.(likely.melanoma)", length(which(wna_clinical['Alive.2016.12.05_dead..likely.melanoma.']==1))),
                                                                     rep("dead", length(which(wna_clinical['Alive.2016.12.05_dead']==1))),
                                                                     rep("alive", length(which(wna_clinical['Alive.2016.12.05_alive']==1)))))
-core_proteomics <- subset(proteomics, rownames(proteomics) %in% Ecore_genes)
+core_proteomics <- proteomics
 
 wna_clinical = subset(wna_clinical, wna_clinical$Alive.2016.12.05_nan == 0)
 
@@ -91,7 +84,7 @@ MutBRAF = subset(B_prot, B_prot$Alive.2016.12.05_alive == 0)
 MutBRAF = MutBRAF[,-c(26)]
 t.test(WTBRAF, MutBRAF)
 x = list('Overall'=t.test(WTBRAF, MutBRAF)$p.value)
-for (i in 1:25){
+for (i in 18:11052){
   p = t.test(WTBRAF[,i], MutBRAF[,i])$p.value
   x[[colnames(WTBRAF)[i]]] = p
   if (p < 0.1){
@@ -113,9 +106,6 @@ library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Reso
 ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
 wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
 proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
-Ecore_genes = c('BRAF', 'NRAS', 'TP53', 'NF1', 'CDKN2A', 'ARID2', 'PTEN', 'PPP6C', 'RAC1', 'IDH1', 'DDX3X', 'MAP2K1', 'RB1', 'CTNNB1', 'CASP8', 'PCDHGA1', 'SERPINB1', 'IRF7', 'HRAS', 'PTPN11',
-                'ITGA4', 'FAM113B', 'MSR1', 'RPS27', 'SIRPB1', 'MRPS31', 'NOTCH2NL', 'KNSTRN', 'ZFX', 'RAPGEFS', 'RCAN2', 'PPIAL4G', 'ACD', 'WDR12', 'COL9A2', 'STK19', 'CCDC28A', 'LRRC37A3', 'OXA1L',
-                'NDUFB9', 'EMG1', 'TMEM216', 'RQCD1', 'TBC1D3B', 'GNAI2', 'B2M', 'FAM58A', 'C3orf71')
 wna_clinical = wna_clinical[order(wna_clinical['Alive.2016.12.05_alive'],	wna_clinical['Alive.2016.12.05_dead'],	wna_clinical['Alive.2016.12.05_dead..likely.melanoma.'],	wna_clinical['Alive.2016.12.05_dead.other.reason'],	wna_clinical['Alive.2016.12.05_dead.unknown.reason']),]
 proteomics = proteomics[match(rownames(ica), rownames(proteomics)), match(rownames(wna_clinical), colnames(proteomics))]
 categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['Alive.2016.12.05_nan']==1))), 
@@ -124,7 +114,7 @@ categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", le
                                                                     rep("dead.(likely.melanoma)", length(which(wna_clinical['Alive.2016.12.05_dead..likely.melanoma.']==1))),
                                                                     rep("dead", length(which(wna_clinical['Alive.2016.12.05_dead']==1))),
                                                                     rep("alive", length(which(wna_clinical['Alive.2016.12.05_alive']==1)))))
-core_proteomics <- subset(proteomics, rownames(proteomics) %in% Ecore_genes)
+core_proteomics <- proteomics
 
 wna_clinical = subset(wna_clinical, wna_clinical$Alive.2016.12.05_nan == 0)
 
@@ -135,15 +125,15 @@ setDT(wna_clinical, keep.rownames = TRUE)
 setkey(setDT(B_proteomics, keep.rownames = TRUE), rn)
 B_proteomics = B_proteomics[wna_clinical, X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years := i.X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years][]
 B_proteomics = na.omit(B_proteomics)
-write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/5YR_binary/5S_temp.csv", row.names=FALSE)
-B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/5YR_binary/5S_temp.csv", row.names=1)
+write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/5YR_Binary/5S_temp.csv", row.names=FALSE)
+B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/5YR_Binary/5S_temp.csv", row.names=1)
 WTBRAF = subset(B_prot, B_prot$X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years > 0)
 WTBRAF = WTBRAF[,-c(26)]
 MutBRAF = subset(B_prot, X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years < 0)
 MutBRAF = MutBRAF[,-c(26)]
 t.test(WTBRAF, MutBRAF)
 x = list('Overall'=t.test(WTBRAF, MutBRAF)$p.value)
-for (i in 1:25){
+for (i in 18:11052){
   p = t.test(WTBRAF[,i], MutBRAF[,i])$p.value
   x[[colnames(WTBRAF)[i]]] = p
   if (p < 0.1){
@@ -155,7 +145,7 @@ rownames(xdf) = c('T-Test p-value')
 oxdf = transpose(xdf)
 colnames(oxdf) <- rownames(xdf)
 rownames(oxdf) <- colnames(xdf)
-write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/5YR_binary/5YR_Binary_T-Test.csv", row.names=TRUE)
+write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/5YR_Binary/5YR_Binary_T-Test.csv", row.names=TRUE)
 
 
 # dis.stage #
@@ -166,19 +156,13 @@ library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Reso
 ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
 wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
 proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
-Ecore_genes = c('BRAF', 'NRAS', 'TP53', 'NF1', 'CDKN2A', 'ARID2', 'PTEN', 'PPP6C', 'RAC1', 'IDH1', 'DDX3X', 'MAP2K1', 'RB1', 'CTNNB1', 'CASP8', 'PCDHGA1', 'SERPINB1', 'IRF7', 'HRAS', 'PTPN11',
-                'ITGA4', 'FAM113B', 'MSR1', 'RPS27', 'SIRPB1', 'MRPS31', 'NOTCH2NL', 'KNSTRN', 'ZFX', 'RAPGEFS', 'RCAN2', 'PPIAL4G', 'ACD', 'WDR12', 'COL9A2', 'STK19', 'CCDC28A', 'LRRC37A3', 'OXA1L',
-                'NDUFB9', 'EMG1', 'TMEM216', 'RQCD1', 'TBC1D3B', 'GNAI2', 'B2M', 'FAM58A', 'C3orf71')
 wna_clinical = wna_clinical[order(wna_clinical['dis.stage']),]
 proteomics = proteomics[, match(rownames(wna_clinical), colnames(proteomics))]
 categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("1", length(which(wna_clinical['dis.stage']==1))), 
                                                                     rep("3", length(which(wna_clinical['dis.stage']==3))),
                                                                     rep("4", length(which(wna_clinical['dis.stage']==4))),
                                                                     rep("NA", 4)))
-core_proteomics <- subset(proteomics, rownames(proteomics) %in% Ecore_genes)
-pdf("~/Documents/Lund_Melanoma/Transcriptome/dis.stage/Extended_Core_gene_dis_stage_HM.pdf", width = 15, paper = 'a4r')
-pheatmap(core_proteomics, cluster_cols = T, cluster_rows = T, annotation_col = categoryS, fontsize_col = 6, main = 'Extended Core_gene vs dis_stage')
-dev.off()
+core_proteomics <- proteomics
 
 B_proteomics = transpose(core_proteomics)
 colnames(B_proteomics) <- rownames(core_proteomics)
@@ -191,7 +175,7 @@ write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/dis.stag
 B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/dis.stage/temp.csv", row.names=1)
 
 x = list()
-for (i in 1:25){
+for (i in 18:11052){
   ff = aov(B_prot[, i] ~ dis.stage, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p
@@ -215,9 +199,7 @@ library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Reso
 ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
 wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
 proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
-Ecore_genes = c('BRAF', 'NRAS', 'TP53', 'NF1', 'CDKN2A', 'ARID2', 'PTEN', 'PPP6C', 'RAC1', 'IDH1', 'DDX3X', 'MAP2K1', 'RB1', 'CTNNB1', 'CASP8', 'PCDHGA1', 'SERPINB1', 'IRF7', 'HRAS', 'PTPN11',
-                'ITGA4', 'FAM113B', 'MSR1', 'RPS27', 'SIRPB1', 'MRPS31', 'NOTCH2NL', 'KNSTRN', 'ZFX', 'RAPGEFS', 'RCAN2', 'PPIAL4G', 'ACD', 'WDR12', 'COL9A2', 'STK19', 'CCDC28A', 'LRRC37A3', 'OXA1L',
-                'NDUFB9', 'EMG1', 'TMEM216', 'RQCD1', 'TBC1D3B', 'GNAI2', 'B2M', 'FAM58A', 'C3orf71')
+
 wna_clinical = wna_clinical[!is.na(wna_clinical$prim.breslow.class),]
 wna_clinical = wna_clinical[order(wna_clinical['prim.breslow.class']),]
 proteomics = proteomics[, match(rownames(wna_clinical), colnames(proteomics))]
@@ -225,10 +207,7 @@ categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("1", len
                                                                     rep("2", length(which(wna_clinical['prim.breslow.class']==2))),
                                                                     rep("3", length(which(wna_clinical['prim.breslow.class']==3))),
                                                                     rep("4", length(which(wna_clinical['prim.breslow.class']==4)))))
-core_proteomics <- subset(proteomics, rownames(proteomics) %in% Ecore_genes)
-pdf("~/Documents/Lund_Melanoma/Transcriptome/prim_breslow_class/Extended_Core_gene_prim_breslow_class_HM.pdf", width = 15, paper = 'a4r')
-pheatmap(core_proteomics, cluster_cols = T, cluster_rows = T, annotation_col = categoryS, fontsize_col = 6, main = 'Extended Core_gene vs prim_breslow_class')
-dev.off()
+core_proteomics <- proteomics
 
 B_proteomics = transpose(core_proteomics)
 colnames(B_proteomics) <- rownames(core_proteomics)
@@ -241,7 +220,7 @@ write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/prim_bre
 B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/prim_breslow_class/temp.csv", row.names=1)
 
 x = list()
-for (i in 1:25){
+for (i in 18:11052){
   ff = aov(B_prot[, i] ~ prim.breslow.class, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p
@@ -265,9 +244,7 @@ library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Reso
 ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
 wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
 proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
-Ecore_genes = c('BRAF', 'NRAS', 'TP53', 'NF1', 'CDKN2A', 'ARID2', 'PTEN', 'PPP6C', 'RAC1', 'IDH1', 'DDX3X', 'MAP2K1', 'RB1', 'CTNNB1', 'CASP8', 'PCDHGA1', 'SERPINB1', 'IRF7', 'HRAS', 'PTPN11',
-                'ITGA4', 'FAM113B', 'MSR1', 'RPS27', 'SIRPB1', 'MRPS31', 'NOTCH2NL', 'KNSTRN', 'ZFX', 'RAPGEFS', 'RCAN2', 'PPIAL4G', 'ACD', 'WDR12', 'COL9A2', 'STK19', 'CCDC28A', 'LRRC37A3', 'OXA1L',
-                'NDUFB9', 'EMG1', 'TMEM216', 'RQCD1', 'TBC1D3B', 'GNAI2', 'B2M', 'FAM58A', 'C3orf71')
+
 wna_clinical = wna_clinical[!is.na(wna_clinical$clark),]
 wna_clinical = wna_clinical[order(wna_clinical['clark']),]
 proteomics = proteomics[, match(rownames(wna_clinical), colnames(proteomics))]
@@ -276,10 +253,7 @@ categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("1", len
                                                                     rep("3", length(which(wna_clinical['clark']==3))),
                                                                     rep("4", length(which(wna_clinical['clark']==4))),
                                                                     rep("5", length(which(wna_clinical['clark']==5)))))
-core_proteomics <- subset(proteomics, rownames(proteomics) %in% Ecore_genes)
-pdf("~/Documents/Lund_Melanoma/Transcriptome/clark/Extended_Core_gene_clark_HM.pdf", width = 15, paper = 'a4r')
-pheatmap(core_proteomics, cluster_cols = T, cluster_rows = T, annotation_col = categoryS, fontsize_col = 6, main = 'Extended Core_gene vs clark')
-dev.off()
+core_proteomics <- proteomics
 
 B_proteomics = transpose(core_proteomics)
 colnames(B_proteomics) <- rownames(core_proteomics)
@@ -292,7 +266,7 @@ write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/clark/te
 B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/clark/temp.csv", row.names=1)
 
 x = list()
-for (i in 1:25){
+for (i in 18:11052){
   ff = aov(B_prot[, i] ~ clark, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p
@@ -316,9 +290,7 @@ library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Reso
 ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
 wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
 proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
-Ecore_genes = c('BRAF', 'NRAS', 'TP53', 'NF1', 'CDKN2A', 'ARID2', 'PTEN', 'PPP6C', 'RAC1', 'IDH1', 'DDX3X', 'MAP2K1', 'RB1', 'CTNNB1', 'CASP8', 'PCDHGA1', 'SERPINB1', 'IRF7', 'HRAS', 'PTPN11',
-                'ITGA4', 'FAM113B', 'MSR1', 'RPS27', 'SIRPB1', 'MRPS31', 'NOTCH2NL', 'KNSTRN', 'ZFX', 'RAPGEFS', 'RCAN2', 'PPIAL4G', 'ACD', 'WDR12', 'COL9A2', 'STK19', 'CCDC28A', 'LRRC37A3', 'OXA1L',
-                'NDUFB9', 'EMG1', 'TMEM216', 'RQCD1', 'TBC1D3B', 'GNAI2', 'B2M', 'FAM58A', 'C3orf71')
+
 wna_clinical = wna_clinical[!is.na(wna_clinical$clin.class),]
 wna_clinical = wna_clinical[(wna_clinical$clin.class != ''),]
 wna_clinical = wna_clinical[order(wna_clinical['clin.class']),]
@@ -330,10 +302,7 @@ categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("0", len
                                                                     rep("4", length(which(wna_clinical['clin.class']==4))),
                                                                     rep("5", length(which(wna_clinical['clin.class']==5))),
                                                                     rep("NM", length(which(wna_clinical['clin.class']=='NM')))))
-core_proteomics <- subset(proteomics, rownames(proteomics) %in% Ecore_genes)
-pdf("~/Documents/Lund_Melanoma/Transcriptome/clin_class/Extended_Core_gene_clin_class_HM.pdf", width = 15, paper = 'a4r')
-pheatmap(core_proteomics, cluster_cols = T, cluster_rows = T, annotation_col = categoryS, fontsize_col = 6, main = 'Extended Core_gene vs clin_class')
-dev.off()
+core_proteomics <- proteomics
 
 B_proteomics = transpose(core_proteomics)
 colnames(B_proteomics) <- rownames(core_proteomics)
@@ -346,7 +315,7 @@ write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/clin_cla
 B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/clin_class/temp.csv", row.names=1)
 
 x = list()
-for (i in 1:25){
+for (i in 18:11052){
   ff = aov(B_prot[, i] ~ clin.class, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p
@@ -370,9 +339,7 @@ library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Reso
 ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
 wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
 proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
-Ecore_genes = c('BRAF', 'NRAS', 'TP53', 'NF1', 'CDKN2A', 'ARID2', 'PTEN', 'PPP6C', 'RAC1', 'IDH1', 'DDX3X', 'MAP2K1', 'RB1', 'CTNNB1', 'CASP8', 'PCDHGA1', 'SERPINB1', 'IRF7', 'HRAS', 'PTPN11',
-                'ITGA4', 'FAM113B', 'MSR1', 'RPS27', 'SIRPB1', 'MRPS31', 'NOTCH2NL', 'KNSTRN', 'ZFX', 'RAPGEFS', 'RCAN2', 'PPIAL4G', 'ACD', 'WDR12', 'COL9A2', 'STK19', 'CCDC28A', 'LRRC37A3', 'OXA1L',
-                'NDUFB9', 'EMG1', 'TMEM216', 'RQCD1', 'TBC1D3B', 'GNAI2', 'B2M', 'FAM58A', 'C3orf71')
+
 wna_clinical = wna_clinical[!is.na(wna_clinical$prim.site),]
 wna_clinical = wna_clinical[(wna_clinical$prim.site != ''),]
 wna_clinical = wna_clinical[order(wna_clinical['prim.site']),]
@@ -383,10 +350,7 @@ categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("1", len
                                                                     rep("4", length(which(wna_clinical['prim.site']==4))),
                                                                     rep("5", length(which(wna_clinical['prim.site']==5))),
                                                                     rep("f", length(which(wna_clinical['prim.site']=='f')))))
-core_proteomics <- subset(proteomics, rownames(proteomics) %in% Ecore_genes)
-pdf("~/Documents/Lund_Melanoma/Transcriptome/prim_site/Extended_Core_gene_prim_site_HM.pdf", width = 15, paper = 'a4r')
-pheatmap(core_proteomics, cluster_cols = T, cluster_rows = T, annotation_col = categoryS, fontsize_col = 6, main = 'Extended Core_gene vs prim_site')
-dev.off()
+core_proteomics <- proteomics
 
 B_proteomics = transpose(core_proteomics)
 colnames(B_proteomics) <- rownames(core_proteomics)
@@ -399,7 +363,7 @@ write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/prim_sit
 B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/prim_site/temp.csv", row.names=1)
 
 x = list()
-for (i in 1:25){
+for (i in 18:11052){
   ff = aov(B_prot[, i] ~ prim.site, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p

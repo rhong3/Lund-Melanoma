@@ -1,11 +1,53 @@
+#########################################
+library('org.Hs.eg.db')
+source("https://bioconductor.org/biocLite.R")
+biocLite("reactome.db")
+library("reactome.db", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+library("ReactomePA", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+library("fgsea", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+
+J_Clean_proteomics_IC_centroid <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)[17:11291,]
+Gene_order = J_Clean_proteomics_IC_centroid[order(J_Clean_proteomics_IC_centroid$X96),]
+ENTREZID = mapIds(org.Hs.eg.db, row.names(Gene_order), 'ENTREZID', 'SYMBOL')
+Gene_order.96 <- setNames(as.numeric(Gene_order$X96), unname(ENTREZID))
+my_pathways <- reactomePathways(names(Gene_order.96))
+summary(sapply(my_pathways, length))
+fgsea_reactome <- fgsea(pathways = my_pathways, 
+                        stats = Gene_order.96,
+                        minSize=15,
+                        maxSize=500,
+                        nperm=100000)
+fgsea_reactome <- na.omit(fgsea_reactome[order(pval), ])
+fgsea_reactome$leadingEdge = as.character(fgsea_reactome$leadingEdge)
+fgsea_reactome.sig = fgsea_reactome[fgsea_reactome$padj < 0.01,]
+write.csv(fgsea_reactome, file = "~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/GSEA/IC96.csv")
+# pdf("~/Documents/Lund_Melanoma/proteomics/ICA/0403ICA/GSEA/Most_IC8_sig.pdf", paper = 'letter')
+# plotEnrichment(my_pathways[[head(fgsea_reactome, 1)$pathway]], Gene_order.8) + labs(title=head(fgsea_reactome, 1)$pathway)
+# dev.off()
+
+topPathwaysUp <- fgsea_reactome.sig[ES > 0][head(order(padj), n=20), pathway]
+topPathwaysDown <- fgsea_reactome.sig[ES < 0][head(order(padj), n=20), pathway]
+topPathways <- c(topPathwaysUp, rev(topPathwaysDown))
+pdf("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/GSEA/IC96_sig.pdf", width = 15, paper = 'a4r')
+plotGseaTable(my_pathways[topPathways], Gene_order.96, fgsea_reactome, 
+              gseaParam = 0.5)
+dev.off()
+
+###################################################
+library("pheatmap", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
 # Heatmap
-ica <- read.delim("~/Documents/Lund/proteomics/ICA/Gene_level/J_Clean_proteomics_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund/proteomics/wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund/proteomics/J_Clean_proteomics.tsv", row.names=1)
-ica$survival = ica$X92
+ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
+ica$survival = ica$X16
 ica = ica[order(ica$survival),]
 wna_clinicalC = wna_clinical[order(wna_clinical['clin.class.det_ALM'],	wna_clinical['clin.class.det_LMM'],	wna_clinical['clin.class.det_Mucosal'],	wna_clinical['clin.class.det_NM'],	wna_clinical['clin.class.det_Other'],	wna_clinical['clin.class.det_SSM'],	wna_clinical['clin.class.det_Unknownprimary']),]
 wna_clinicalS = wna_clinical[order(wna_clinical['Alive.2016.12.05_alive'],	wna_clinical['Alive.2016.12.05_dead'],	wna_clinical['Alive.2016.12.05_dead..likely.melanoma.'],	wna_clinical['Alive.2016.12.05_dead.other.reason'],	wna_clinical['Alive.2016.12.05_dead.unknown.reason']),]
+wna_clinicalST = wna_clinical[order(wna_clinical['stage_General'],	wna_clinical['stage_Local'],	wna_clinical['stage_Regional'],	wna_clinical['stage_In.transit']),]
+wna_clinicalL = wna_clinical[order(wna_clinical['local_Cutaneous'],	wna_clinical['local_Lymph.node'],	wna_clinical['local_Subcutaneous'],	wna_clinical['local_Visceral']),]
+wna_clinicalB = wna_clinical[order(wna_clinical['BRAF.status_V600A'],	wna_clinical['BRAF.status_V600E'],	wna_clinical['BRAF.status_V600K'],	wna_clinical['BRAF.status_WT']),]
+
+wna_clinical = wna_clinicalS
 
 GSEA_proteomics = proteomics[match(rownames(ica), rownames(proteomics)), match(rownames(wna_clinical), colnames(proteomics))]
 categoryC = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['clin.class.det_nan']==1))), 
@@ -24,41 +66,28 @@ categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", le
                                                                    rep("dead", length(which(wna_clinical['Alive.2016.12.05_dead']==1))),
                                                                    rep("alive", length(which(wna_clinical['Alive.2016.12.05_alive']==1)))))
 
-GSEA_proteomics = data.matrix(GSEA_proteomics[-c(26:7984),])
+categoryST = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['stage_nan']==1))), 
+                                                                    rep("stage.in.transit", length(which(wna_clinical['stage_In.transit']==1))),
+                                                                    rep("stage.regional", length(which(wna_clinical['stage_Regional']==1))),
+                                                                    rep("stage.local", length(which(wna_clinical['stage_Local']==1))),
+                                                                    rep("stage.general", length(which(wna_clinical['stage_General']==1)))))
+
+categoryL = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['local_nan']==1))), 
+                                                                     rep("local.Visceral", length(which(wna_clinical['local_Visceral']==1))),
+                                                                     rep("local.Subcutaneous", length(which(wna_clinical['local_Subcutaneous']==1))),
+                                                                     rep("local.Lymph.node", length(which(wna_clinical['local_Lymph.node']==1))),
+                                                                     rep("local.Curaneous", length(which(wna_clinical['local_Cutaneous']==1)))))
+
+categoryB = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['BRAF.status_nan']==1))), 
+                                                                    rep("BRAF.status.WT", length(which(wna_clinical['BRAF.status_WT']==1))),
+                                                                    rep("BRAF.status.V600K", length(which(wna_clinical['BRAF.status_V600K']==1))),
+                                                                    rep("BRAF.status.V600E", length(which(wna_clinical['BRAF.status_V600E']==1))),
+                                                                    rep("BRAF.status.V600A", length(which(wna_clinical['BRAF.status_V600A']==1)))))
+
+
+GSEA_proteomics = data.matrix(GSEA_proteomics[-c(26:11026),])
 GSEA_proteomics = subset(GSEA_proteomics, nchar(as.character(rownames(GSEA_proteomics))) <= 10)
-pdf("~/Documents/Lund/proteomics/ICA/Gene_level/GSEA/Cluster_IC92survival_HM.pdf", width = 15, paper = 'a4r')
-pheatmap(GSEA_proteomics, cluster_cols = T, cluster_rows = F, annotation_col = categoryS, fontsize_col = 6, main = 'IC92 vs 5yr Survival')
-dev.off()
-#########################################
-
-J_Clean_proteomics_IC_centroid <- read.delim("~/Documents/Lund/proteomics/ICA/Gene_level/J_Clean_proteomics_IC_centroid.txt", row.names=1)[17:11051,]
-Gene_order = J_Clean_proteomics_IC_centroid[order(J_Clean_proteomics_IC_centroid$X96),]
-library('org.Hs.eg.db')
-ENTREZID = mapIds(org.Hs.eg.db, row.names(Gene_order), 'ENTREZID', 'SYMBOL')
-Gene_order.96 <- setNames(as.numeric(Gene_order$X96), unname(ENTREZID))
-# source("https://bioconductor.org/biocLite.R")
-# biocLite("reactome.db")
-my_pathways <- reactomePathways(names(Gene_order.96))
-summary(sapply(my_pathways, length))
-fgsea_reactome <- fgsea(pathways = my_pathways, 
-                        stats = Gene_order.96,
-                        minSize=15,
-                        maxSize=500,
-                        nperm=100000)
-fgsea_reactome <- na.omit(fgsea_reactome[order(pval), ])
-fgsea_reactome$leadingEdge = as.character(fgsea_reactome$leadingEdge)
-fgsea_reactome.sig = fgsea_reactome[fgsea_reactome$padj < 0.01,]
-write.csv(fgsea_reactome, file = "~/Documents/Lund/proteomics/ICA/Gene_level/GSEA/IC96.csv")
-# pdf("~/Documents/Lund/proteomics/ICA/Gene_level/GSEA/IC96_most_enriched.pdf", paper = 'letter')
-# plotEnrichment(my_pathways[[head(fgsea_reactome, 1)$pathway]], Gene_order.96) + labs(title=head(fgsea_reactome, 1)$pathway)
-# dev.off()
-
-topPathwaysUp <- fgsea_reactome.sig[ES > 0][head(order(padj), n=20), pathway]
-topPathwaysDown <- fgsea_reactome.sig[ES < 0][head(order(padj), n=20), pathway]
-topPathways <- c(topPathwaysUp, rev(topPathwaysDown))
-pdf("~/Documents/Lund/proteomics/ICA/Gene_level/GSEA/IC96_sig.pdf", width = 15, paper = 'a4r')
-plotGseaTable(my_pathways[topPathways], Gene_order.96, fgsea_reactome, 
-              gseaParam = 0.5)
+pdf("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/GSEA/Cluster_IC12Survival_HM.pdf", width = 15, paper = 'a4r')
+pheatmap(GSEA_proteomics, cluster_cols = T, cluster_rows = F, annotation_col = categoryS, fontsize_col = 6, main = 'IC12 vs Survival')
 dev.off()
 
-###################################################
