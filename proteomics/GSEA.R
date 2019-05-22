@@ -6,21 +6,21 @@ library("reactome.db", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Res
 library("ReactomePA", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
 library("fgsea", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
 
-J_Clean_proteomics_IC_centroid <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)[17:11291,]
-Gene_order = J_Clean_proteomics_IC_centroid[order(J_Clean_proteomics_IC_centroid$X96),]
+J_Clean_proteomics_IC_centroid <- read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ICA_Centroid.csv", row.names=1)
+Gene_order = J_Clean_proteomics_IC_centroid[order(J_Clean_proteomics_IC_centroid$X110),]
 ENTREZID = mapIds(org.Hs.eg.db, row.names(Gene_order), 'ENTREZID', 'SYMBOL')
-Gene_order.96 <- setNames(as.numeric(Gene_order$X96), unname(ENTREZID))
-my_pathways <- reactomePathways(names(Gene_order.96))
+Gene_order.110 <- setNames(as.numeric(Gene_order$X110), unname(ENTREZID))
+my_pathways <- reactomePathways(names(Gene_order.110))
 summary(sapply(my_pathways, length))
 fgsea_reactome <- fgsea(pathways = my_pathways, 
-                        stats = Gene_order.96,
+                        stats = Gene_order.110,
                         minSize=15,
                         maxSize=500,
                         nperm=100000)
 fgsea_reactome <- na.omit(fgsea_reactome[order(pval), ])
 fgsea_reactome$leadingEdge = as.character(fgsea_reactome$leadingEdge)
 fgsea_reactome.sig = fgsea_reactome[fgsea_reactome$padj < 0.01,]
-write.csv(fgsea_reactome, file = "~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/GSEA/IC96.csv")
+write.csv(fgsea_reactome, file = "~/Documents/Lund_Melanoma/phospho/ICA/GSEA/IC110.csv")
 # pdf("~/Documents/Lund_Melanoma/proteomics/ICA/0403ICA/GSEA/Most_IC8_sig.pdf", paper = 'letter')
 # plotEnrichment(my_pathways[[head(fgsea_reactome, 1)$pathway]], Gene_order.8) + labs(title=head(fgsea_reactome, 1)$pathway)
 # dev.off()
@@ -28,17 +28,17 @@ write.csv(fgsea_reactome, file = "~/Documents/Lund_Melanoma/Transcriptome/ICA/04
 topPathwaysUp <- fgsea_reactome.sig[ES > 0][head(order(padj), n=20), pathway]
 topPathwaysDown <- fgsea_reactome.sig[ES < 0][head(order(padj), n=20), pathway]
 topPathways <- c(topPathwaysUp, rev(topPathwaysDown))
-pdf("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/GSEA/IC96_sig.pdf", width = 15, paper = 'a4r')
-plotGseaTable(my_pathways[topPathways], Gene_order.96, fgsea_reactome, 
+pdf("~/Documents/Lund_Melanoma/phospho/ICA/GSEA/IC110_sig.pdf", width = 15, paper = 'a4r')
+plotGseaTable(my_pathways[topPathways], Gene_order.110, fgsea_reactome, 
               gseaParam = 0.5)
 dev.off()
 
 ###################################################
 library("pheatmap", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
 # Heatmap
-ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
+ica <- read.delim("~/Documents/Lund_Melanoma/phospho/ICA/J_Clean_phospho_IC_centroid.txt", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/T_wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho.tsv", row.names=1)
 ica$survival = ica$X16
 ica = ica[order(ica$survival),]
 wna_clinicalC = wna_clinical[order(wna_clinical['clin.class.det_ALM'],	wna_clinical['clin.class.det_LMM'],	wna_clinical['clin.class.det_Mucosal'],	wna_clinical['clin.class.det_NM'],	wna_clinical['clin.class.det_Other'],	wna_clinical['clin.class.det_SSM'],	wna_clinical['clin.class.det_Unknownprimary']),]
@@ -87,7 +87,7 @@ categoryB = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", le
 
 GSEA_proteomics = data.matrix(GSEA_proteomics[-c(26:11026),])
 GSEA_proteomics = subset(GSEA_proteomics, nchar(as.character(rownames(GSEA_proteomics))) <= 10)
-pdf("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/GSEA/Cluster_IC12Survival_HM.pdf", width = 15, paper = 'a4r')
+pdf("~/Documents/Lund_Melanoma/phospho/ICA/GSEA/Cluster_IC12Survival_HM.pdf", width = 15, paper = 'a4r')
 pheatmap(GSEA_proteomics, cluster_cols = T, cluster_rows = F, annotation_col = categoryS, fontsize_col = 6, main = 'IC12 vs Survival')
 dev.off()
 

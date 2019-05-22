@@ -1,0 +1,11 @@
+Clinical not in proteomics
+MM1425
+MM35
+MM499
+MM716
+MM727
+MM783
+MM926
+
+Proteomics not in Clinical (All found 20190327)
+MM807.1   MM778.1    LG7438(MM814)   MM692.1   MM790.1
