@@ -1,14 +1,15 @@
-ICX = 'X34'
-ICM = 'IC34'
-ICN = 34
+ICX = 'X4'
+ICM = 'IC4'
+ICN = 4
+Var = 'Local'
 #########################################
 library('org.Hs.eg.db')
-source("https://bioconductor.org/biocLite.R")
-biocLite("reactome.db")
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("reactome.db")
 library("reactome.db", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
 library("ReactomePA", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
 library("fgsea", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-J_Clean_proteomics_IC_centroid <- read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_ICA_Centroid.csv", row.names=1)
+J_Clean_proteomics_IC_centroid <- read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
 Gene_order = J_Clean_proteomics_IC_centroid[order(J_Clean_proteomics_IC_centroid[[ICN]]),]
 ENTREZID = mapIds(org.Hs.eg.db, row.names(Gene_order), 'ENTREZID', 'SYMBOL')
 Gene_order.ICN <- setNames(as.numeric(Gene_order[[ICX]]), unname(ENTREZID))
@@ -38,9 +39,9 @@ dev.off()
 ###################################################
 library("pheatmap", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
 # Heatmap
-ica <- read.delim("~/Documents/Lund_Melanoma/phospho/ICA/Clean_phospho_ip_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/Clean_clinical_ip.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/Clean_phospho_ip.tsv", row.names=1)
+ica <-read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho_ip.tsv", row.names=1)
 ica$survival = ica[[ICX]]
 ica = ica[order(ica$survival),]
 wna_clinicalC = wna_clinical[order(wna_clinical['clin.class.det_ALM'],	wna_clinical['clin.class.det_LMM'],	wna_clinical['clin.class.det_Mucosal'],	wna_clinical['clin.class.det_NM'],	wna_clinical['clin.class.det_Other'],	wna_clinical['clin.class.det_SSM'],	wna_clinical['clin.class.det_Unknownprimary']),]
@@ -49,7 +50,7 @@ wna_clinicalST = wna_clinical[order(wna_clinical['stage_General'],	wna_clinical[
 wna_clinicalL = wna_clinical[order(wna_clinical['local_Cutaneous'],	wna_clinical['local_Lymph.node'],	wna_clinical['local_Subcutaneous'],	wna_clinical['local_Visceral']),]
 wna_clinicalB = wna_clinical[order(wna_clinical['BRAF.status_V600A'],	wna_clinical['BRAF.status_V600E'],	wna_clinical['BRAF.status_V600K'],	wna_clinical['BRAF.status_WT']),]
 
-wna_clinical = wna_clinicalS
+wna_clinical = wna_clinicalL
 
 GSEA_proteomics = proteomics[match(rownames(ica), rownames(proteomics)), match(rownames(wna_clinical), colnames(proteomics))]
 categoryC = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['clin.class.det_nan']==1))), 
@@ -87,9 +88,9 @@ categoryB = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", le
                                                                     rep("BRAF.status.V600A", length(which(wna_clinical['BRAF.status_V600A']==1)))))
 
 
-GSEA_proteomics = data.matrix(GSEA_proteomics[-c(26:11026),])
+GSEA_proteomics = data.matrix(GSEA_proteomics[-c(26:1568),])
 GSEA_proteomics = subset(GSEA_proteomics, nchar(as.character(rownames(GSEA_proteomics))) <= 10)
-pdf(paste("~/Documents/Lund_Melanoma/phospho/ICA/GSEA/Cluster_", ICM, "Survival_HM.pdf"), width = 15, paper = 'a4r')
-pheatmap(GSEA_proteomics, cluster_cols = T, cluster_rows = F, annotation_col = categoryS, fontsize_col = 6, main = paste(ICM, ' vs Survival'))
+pdf(paste("~/Documents/Lund_Melanoma/phospho/ICA/GSEA_ip/Cluster_", ICM, Var, "_HM.pdf"), width = 15, paper = 'a4r')
+pheatmap(GSEA_proteomics, cluster_cols = T, cluster_rows = F, annotation_col = categoryL, fontsize_col = 6, main = paste(ICM, ' vs ', Var))
 dev.off()
 

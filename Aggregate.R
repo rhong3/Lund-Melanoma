@@ -17,10 +17,10 @@ finalfile = finalfile[order(finalfile$padj), ]
 write.csv(finalfile, file = "~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/GSEA/Aggregated.csv", row.names=TRUE)
 
 # Aggregate significant genes
-genedict = list(list('5YR_Binary', 'T-Test'), list('binary', 'T-Test'), list('BRAF', 'T-Test'), list('clark', 'ANOVA'), list('clin_class', 'ANOVA'), list('dis.stage', 'ANOVA'), list('prim_breslow_class', 'ANOVA'), list('prim_site', 'ANOVA'))
+genedict = list(list('5YR_Binary', 'T-Test'), list('binary', 'T-Test'), list('BRAF', 'T-Test'), list('clark', 'ANOVA'), list('clin_class', 'ANOVA'), list('dis_stage', 'ANOVA'), list('prim_breslow_class', 'ANOVA'), list('prim_site', 'ANOVA'))
 finalfile <- setNames(data.frame(matrix(ncol = 4, nrow = 0)), c('Gene', 'Pvalue', 'Test', 'Clinical'))
 for(i in genedict){
-  nname = paste('~/Documents/Lund_Melanoma/proteomics/Analysis_20190416/All_gene/', i[1], '/', i[2], '.csv', sep='')
+  nname = paste('~/Documents/Lund_Melanoma/phospho/Analysis0709/', i[1], '/', i[2], '.csv', sep='')
   filess = read.csv(nname)
   colnames(filess) = c('Gene', 'Pvalue')
   filess = filess[filess$Pvalue < 0.01, ]
@@ -31,6 +31,6 @@ for(i in genedict){
 finalfile$Test = as.character(finalfile$Test)
 finalfile$Clinical = as.character(finalfile$Clinical)
 finalfile = finalfile[order(finalfile$Pvalue), ]
-write.csv(finalfile, file = "~/Documents/Lund_Melanoma/proteomics/Analysis_20190416/All_gene/Gene_Aggregated.csv", row.names=TRUE)
+write.csv(finalfile, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/Gene_Aggregated.csv", row.names=TRUE)
 
 

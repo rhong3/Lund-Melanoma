@@ -5,9 +5,9 @@ library("stats")
 library('ggplot2')
 library('pheatmap')
 library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
+ica <-read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho_ip.tsv", row.names=1)
 
 wna_clinical = wna_clinical[order(wna_clinical['BRAF.status_V600A'],	wna_clinical['BRAF.status_V600E'],	wna_clinical['BRAF.status_V600K'],	wna_clinical['BRAF.status_WT'],	wna_clinical['BRAF.status_nan']),]
 proteomics = proteomics[match(rownames(ica), rownames(proteomics)), match(rownames(wna_clinical), colnames(proteomics))]
@@ -25,15 +25,15 @@ setDT(wna_clinical, keep.rownames = TRUE)
 setkey(setDT(B_proteomics, keep.rownames = TRUE), rn)
 B_proteomics = B_proteomics[wna_clinical, BRAF.status_WT := i.BRAF.status_WT][]
 B_proteomics = na.omit(B_proteomics)
-write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/BRAF/B_temp.csv", row.names=FALSE)
-B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/BRAF/B_temp.csv", row.names=1)
+write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/BRAF/B_temp.csv", row.names=FALSE)
+B_prot <- read.csv("~/Documents/Lund_Melanoma/phospho/Analysis0709/BRAF/B_temp.csv", row.names=1)
 WTBRAF = subset(B_prot, B_prot$BRAF.status_WT == 1)
 WTBRAF = WTBRAF[,-c(26)]
 MutBRAF = subset(B_prot, B_prot$BRAF.status_WT == 0)
 MutBRAF = MutBRAF[,-c(26)]
 t.test(WTBRAF, MutBRAF)
 x = list('Overall'=t.test(WTBRAF, MutBRAF)$p.value)
-for (i in 18:11052){
+for (i in 1:1593){
   p = t.test(WTBRAF[,i], MutBRAF[,i])$p.value
   x[[colnames(WTBRAF)[i]]] = p
   if (p < 0.1){
@@ -45,7 +45,7 @@ rownames(xdf) = c('T-Test p-value')
 oxdf = transpose(xdf)
 colnames(oxdf) <- rownames(xdf)
 rownames(oxdf) <- colnames(xdf)
-write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/BRAF/T-Test.csv", row.names=TRUE)
+write.csv(oxdf, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/BRAF/T-Test.csv", row.names=TRUE)
 
 
 # Alive/Dead binary
@@ -54,9 +54,9 @@ library("stats")
 library('ggplot2')
 library('pheatmap')
 library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
+ica <-read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho_ip.tsv", row.names=1)
 wna_clinical = wna_clinical[order(wna_clinical['Alive.2016.12.05_alive'],	wna_clinical['Alive.2016.12.05_dead'],	wna_clinical['Alive.2016.12.05_dead..likely.melanoma.'],	wna_clinical['Alive.2016.12.05_dead.other.reason'],	wna_clinical['Alive.2016.12.05_dead.unknown.reason']),]
 proteomics = proteomics[match(rownames(ica), rownames(proteomics)), match(rownames(wna_clinical), colnames(proteomics))]
 categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['Alive.2016.12.05_nan']==1))), 
@@ -76,15 +76,15 @@ setDT(wna_clinical, keep.rownames = TRUE)
 setkey(setDT(B_proteomics, keep.rownames = TRUE), rn)
 B_proteomics = B_proteomics[wna_clinical, Alive.2016.12.05_alive := i.Alive.2016.12.05_alive][]
 B_proteomics = na.omit(B_proteomics)
-write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/binary/S_temp.csv", row.names=FALSE)
-B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/binary/S_temp.csv", row.names=1)
+write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/binary/S_temp.csv", row.names=FALSE)
+B_prot <- read.csv("~/Documents/Lund_Melanoma/phospho/Analysis0709/binary/S_temp.csv", row.names=1)
 WTBRAF = subset(B_prot, B_prot$Alive.2016.12.05_alive == 1)
 WTBRAF = WTBRAF[,-c(26)]
 MutBRAF = subset(B_prot, B_prot$Alive.2016.12.05_alive == 0)
 MutBRAF = MutBRAF[,-c(26)]
 t.test(WTBRAF, MutBRAF)
 x = list('Overall'=t.test(WTBRAF, MutBRAF)$p.value)
-for (i in 18:11052){
+for (i in 1:1593){
   p = t.test(WTBRAF[,i], MutBRAF[,i])$p.value
   x[[colnames(WTBRAF)[i]]] = p
   if (p < 0.1){
@@ -96,16 +96,16 @@ rownames(xdf) = c('T-Test p-value')
 oxdf = transpose(xdf)
 colnames(oxdf) <- rownames(xdf)
 rownames(oxdf) <- colnames(xdf)
-write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/binary/Binary_T-Test.csv", row.names=TRUE)
+write.csv(oxdf, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/binary/T-Test.csv", row.names=TRUE)
 
 # 5-yr binary
 library("stats")
 library('ggplot2')
 library('pheatmap')
 library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
+ica <-read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho_ip.tsv", row.names=1)
 wna_clinical = wna_clinical[order(wna_clinical['Alive.2016.12.05_alive'],	wna_clinical['Alive.2016.12.05_dead'],	wna_clinical['Alive.2016.12.05_dead..likely.melanoma.'],	wna_clinical['Alive.2016.12.05_dead.other.reason'],	wna_clinical['Alive.2016.12.05_dead.unknown.reason']),]
 proteomics = proteomics[match(rownames(ica), rownames(proteomics)), match(rownames(wna_clinical), colnames(proteomics))]
 categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("NA", length(which(wna_clinical['Alive.2016.12.05_nan']==1))), 
@@ -125,15 +125,15 @@ setDT(wna_clinical, keep.rownames = TRUE)
 setkey(setDT(B_proteomics, keep.rownames = TRUE), rn)
 B_proteomics = B_proteomics[wna_clinical, X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years := i.X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years][]
 B_proteomics = na.omit(B_proteomics)
-write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/5YR_Binary/5S_temp.csv", row.names=FALSE)
-B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/5YR_Binary/5S_temp.csv", row.names=1)
+write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/5YR_Binary/5S_temp.csv", row.names=FALSE)
+B_prot <- read.csv("~/Documents/Lund_Melanoma/phospho/Analysis0709/5YR_Binary/5S_temp.csv", row.names=1)
 WTBRAF = subset(B_prot, B_prot$X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years > 0)
 WTBRAF = WTBRAF[,-c(26)]
 MutBRAF = subset(B_prot, X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years < 0)
 MutBRAF = MutBRAF[,-c(26)]
 t.test(WTBRAF, MutBRAF)
 x = list('Overall'=t.test(WTBRAF, MutBRAF)$p.value)
-for (i in 18:11052){
+for (i in 1:1593){
   p = t.test(WTBRAF[,i], MutBRAF[,i])$p.value
   x[[colnames(WTBRAF)[i]]] = p
   if (p < 0.1){
@@ -145,7 +145,7 @@ rownames(xdf) = c('T-Test p-value')
 oxdf = transpose(xdf)
 colnames(oxdf) <- rownames(xdf)
 rownames(oxdf) <- colnames(xdf)
-write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/5YR_Binary/5YR_Binary_T-Test.csv", row.names=TRUE)
+write.csv(oxdf, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/5YR_Binary/T-Test.csv", row.names=TRUE)
 
 
 # dis.stage #
@@ -153,9 +153,9 @@ library("stats")
 library('ggplot2')
 library('pheatmap')
 library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
+ica <-read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho_ip.tsv", row.names=1)
 wna_clinical = wna_clinical[order(wna_clinical['dis.stage']),]
 proteomics = proteomics[, match(rownames(wna_clinical), colnames(proteomics))]
 categoryS = data.frame(row.names=rownames(wna_clinical), category=c(rep("1", length(which(wna_clinical['dis.stage']==1))), 
@@ -171,11 +171,11 @@ setDT(wna_clinical, keep.rownames = TRUE)
 setkey(setDT(B_proteomics, keep.rownames = TRUE), rn)
 B_proteomics = B_proteomics[wna_clinical, dis.stage := i.dis.stage][]
 B_proteomics = na.omit(B_proteomics)
-write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/dis.stage/temp.csv", row.names=FALSE)
-B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/dis.stage/temp.csv", row.names=1)
+write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/dis_stage/temp.csv", row.names=FALSE)
+B_prot <- read.csv("~/Documents/Lund_Melanoma/phospho/Analysis0709/dis_stage/temp.csv", row.names=1)
 
 x = list()
-for (i in 18:11052){
+for (i in 1:1593){
   ff = aov(B_prot[, i] ~ dis.stage, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p
@@ -189,17 +189,16 @@ rownames(xdf) = c('ANOVA p-value')
 oxdf = transpose(xdf)
 colnames(oxdf) <- rownames(xdf)
 rownames(oxdf) <- colnames(xdf)
-write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/dis.stage/ANOVA.csv", row.names=TRUE)
+write.csv(oxdf, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/dis_stage/ANOVA.csv", row.names=TRUE)
 
 # prim breslow class
 library("stats")
 library('ggplot2')
 library('pheatmap')
 library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
-
+ica <-read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho_ip.tsv", row.names=1)
 wna_clinical = wna_clinical[!is.na(wna_clinical$prim.breslow.class),]
 wna_clinical = wna_clinical[order(wna_clinical['prim.breslow.class']),]
 proteomics = proteomics[, match(rownames(wna_clinical), colnames(proteomics))]
@@ -216,11 +215,11 @@ setDT(wna_clinical, keep.rownames = TRUE)
 setkey(setDT(B_proteomics, keep.rownames = TRUE), rn)
 B_proteomics = B_proteomics[wna_clinical, prim.breslow.class := i.prim.breslow.class][]
 B_proteomics = na.omit(B_proteomics)
-write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/prim_breslow_class/temp.csv", row.names=FALSE)
-B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/prim_breslow_class/temp.csv", row.names=1)
+write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/prim_breslow_class/temp.csv", row.names=FALSE)
+B_prot <- read.csv("~/Documents/Lund_Melanoma/phospho/Analysis0709/prim_breslow_class/temp.csv", row.names=1)
 
 x = list()
-for (i in 18:11052){
+for (i in 1:1593){
   ff = aov(B_prot[, i] ~ prim.breslow.class, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p
@@ -234,16 +233,16 @@ rownames(xdf) = c('ANOVA p-value')
 oxdf = transpose(xdf)
 colnames(oxdf) <- rownames(xdf)
 rownames(oxdf) <- colnames(xdf)
-write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/prim_breslow_class/ANOVA.csv", row.names=TRUE)
+write.csv(oxdf, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/prim_breslow_class/ANOVA.csv", row.names=TRUE)
 
 # clark
 library("stats")
 library('ggplot2')
 library('pheatmap')
 library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
+ica <-read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho_ip.tsv", row.names=1)
 
 wna_clinical = wna_clinical[!is.na(wna_clinical$clark),]
 wna_clinical = wna_clinical[order(wna_clinical['clark']),]
@@ -262,11 +261,11 @@ setDT(wna_clinical, keep.rownames = TRUE)
 setkey(setDT(B_proteomics, keep.rownames = TRUE), rn)
 B_proteomics = B_proteomics[wna_clinical, clark := i.clark][]
 B_proteomics = na.omit(B_proteomics)
-write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/clark/temp.csv", row.names=FALSE)
-B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/clark/temp.csv", row.names=1)
+write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/clark/temp.csv", row.names=FALSE)
+B_prot <- read.csv("~/Documents/Lund_Melanoma/phospho/Analysis0709/clark/temp.csv", row.names=1)
 
 x = list()
-for (i in 18:11052){
+for (i in 1:1593){
   ff = aov(B_prot[, i] ~ clark, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p
@@ -280,16 +279,16 @@ rownames(xdf) = c('ANOVA p-value')
 oxdf = transpose(xdf)
 colnames(oxdf) <- rownames(xdf)
 rownames(oxdf) <- colnames(xdf)
-write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/clark/ANOVA.csv", row.names=TRUE)
+write.csv(oxdf, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/clark/ANOVA.csv", row.names=TRUE)
 
 #clin class
 library("stats")
 library('ggplot2')
 library('pheatmap')
 library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
+ica <-read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho_ip.tsv", row.names=1)
 
 wna_clinical = wna_clinical[!is.na(wna_clinical$clin.class),]
 wna_clinical = wna_clinical[(wna_clinical$clin.class != ''),]
@@ -311,11 +310,11 @@ setDT(wna_clinical, keep.rownames = TRUE)
 setkey(setDT(B_proteomics, keep.rownames = TRUE), rn)
 B_proteomics = B_proteomics[wna_clinical, clin.class := i.clin.class][]
 B_proteomics = na.omit(B_proteomics)
-write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/clin_class/temp.csv", row.names=FALSE)
-B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/clin_class/temp.csv", row.names=1)
+write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/clin_class/temp.csv", row.names=FALSE)
+B_prot <- read.csv("~/Documents/Lund_Melanoma/phospho/Analysis0709/clin_class/temp.csv", row.names=1)
 
 x = list()
-for (i in 18:11052){
+for (i in 1:1593){
   ff = aov(B_prot[, i] ~ clin.class, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p
@@ -329,16 +328,16 @@ rownames(xdf) = c('ANOVA p-value')
 oxdf = transpose(xdf)
 colnames(oxdf) <- rownames(xdf)
 rownames(oxdf) <- colnames(xdf)
-write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/clin_class/ANOVA.csv", row.names=TRUE)
+write.csv(oxdf, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/clin_class/ANOVA.csv", row.names=TRUE)
 
 # prim site
 library("stats")
 library('ggplot2')
 library('pheatmap')
 library("data.table", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-ica <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/ICA/0405ICA/J_Clean_transcriptome_IC_centroid.txt", row.names=1)
-wna_clinical <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/T_wna_clinical.tsv", row.names=1)
-proteomics <- read.delim("~/Documents/Lund_Melanoma/Transcriptome/J_Clean_transcriptome.tsv", row.names=1)
+ica <-read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
+wna_clinical <- read.delim("~/Documents/Lund_Melanoma/phospho/wna_clinical.tsv", row.names=1)
+proteomics <- read.delim("~/Documents/Lund_Melanoma/phospho/J_Clean_phospho_ip.tsv", row.names=1)
 
 wna_clinical = wna_clinical[!is.na(wna_clinical$prim.site),]
 wna_clinical = wna_clinical[(wna_clinical$prim.site != ''),]
@@ -359,11 +358,11 @@ setDT(wna_clinical, keep.rownames = TRUE)
 setkey(setDT(B_proteomics, keep.rownames = TRUE), rn)
 B_proteomics = B_proteomics[wna_clinical, prim.site := i.prim.site][]
 B_proteomics = na.omit(B_proteomics)
-write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/Transcriptome/prim_site/temp.csv", row.names=FALSE)
-B_prot <- read.csv("~/Documents/Lund_Melanoma/Transcriptome/prim_site/temp.csv", row.names=1)
+write.csv(B_proteomics, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/prim_site/temp.csv", row.names=FALSE)
+B_prot <- read.csv("~/Documents/Lund_Melanoma/phospho/Analysis0709/prim_site/temp.csv", row.names=1)
 
 x = list()
-for (i in 18:11052){
+for (i in 1:1593){
   ff = aov(B_prot[, i] ~ prim.site, data = B_prot)
   p = summary(ff)[[1]][["Pr(>F)"]][1]
   x[[colnames(B_prot)[i]]] = p
@@ -377,5 +376,5 @@ rownames(xdf) = c('ANOVA p-value')
 oxdf = transpose(xdf)
 colnames(oxdf) <- rownames(xdf)
 rownames(oxdf) <- colnames(xdf)
-write.csv(oxdf, file = "~/Documents/Lund_Melanoma/Transcriptome/prim_site/ANOVA.csv", row.names=TRUE)
+write.csv(oxdf, file = "~/Documents/Lund_Melanoma/phospho/Analysis0709/prim_site/ANOVA.csv", row.names=TRUE)
 
