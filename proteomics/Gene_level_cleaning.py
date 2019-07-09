@@ -1,8 +1,8 @@
 import pandas as pd
 
-protein = pd.read_csv('./Clean_proteomics.tsv', sep='\t', header=0, index_col=0)
+protein = pd.read_csv('proteomics/Clean_proteomics.tsv', sep='\t', header=0, index_col=0)
 
-disc = pd.read_excel('./Segundo TMT data to Krzysztof.xlsx', header=0).iloc[9:, -3:]
+disc = pd.read_excel('proteomics/Segundo TMT data to Krzysztof.xlsx', header=0).iloc[9:, -3:]
 
 disc = disc.set_index('Accession')
 
@@ -19,5 +19,5 @@ J_centroid = J_centroid.drop('Description', axis=1)
 
 J_centroid = J_centroid.groupby(J_centroid.index).mean()
 
-J_centroid.to_csv('./J_Clean_proteomics.tsv', sep='\t', index=True, header=True)
+J_centroid.to_csv('proteomics/J_Clean_proteomics.tsv', sep='\t', index=True, header=True)
 

@@ -8,6 +8,7 @@ Phospho = Phospho[,c(1,2)]
 rownames(Clean_phospho_IC_centroid) = Clean_phospho_IC_centroid$X
 Clean_phospho_IC_centroid = Clean_phospho_IC_centroid[,-c(1)]
 new = merge(Clean_phospho_IC_centroid, Phospho, by="row.names")
+write.table(new, file="~/Documents/Lund_Melanoma/phospho/WJ_Clean_phospho_iP.tsv", quote=FALSE, sep='\t')
 new.w = aggregate(new, by=list(new$Gene), FUN = mean)
 rownames(new.w) = new.w$Group.1
 new.w = new.w[,c(3:120)]
