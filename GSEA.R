@@ -3,12 +3,11 @@ ICM = 'IC4'
 ICN = 4
 Var = 'Local'
 #########################################
+library(BiocManager)
 library('org.Hs.eg.db')
-# source("https://bioconductor.org/biocLite.R")
-# biocLite("reactome.db")
-library("reactome.db", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-library("ReactomePA", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
-library("fgsea", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+library("reactome.db")
+library("ReactomePA")
+library("fgsea")
 J_Clean_proteomics_IC_centroid <- read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
 Gene_order = J_Clean_proteomics_IC_centroid[order(J_Clean_proteomics_IC_centroid[[ICN]]),]
 ENTREZID = mapIds(org.Hs.eg.db, row.names(Gene_order), 'ENTREZID', 'SYMBOL')
