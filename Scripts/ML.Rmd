@@ -1,0 +1,347 @@
+---
+title: "ML"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# ML to predict Survival with ICs
+ica <- read.delim("~/Documents/Lund_Melanoma/proteomics/ICA/0403ICA/J_Clean_proteomics_IC_mean_mixing_score.txt", row.names=1)
+ica = data.frame(t(ica))
+ica$sample = row.names(ica)
+clinical <- read.delim("~/Documents/Lund_Melanoma/proteomics/wna_clinical.tsv", row.names=1)
+clinical$sample = row.names(clinical)
+mgdf = merge(clinical, ica, by="sample")
+
+``` 
+
+<!-- # 5yr Survival binary prediction -->
+<!-- ```{r} -->
+<!-- BSclinical = clinical[c("sample", "X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years")] -->
+<!-- BSclinical = na.omit(BSclinical) -->
+<!-- DD = subset(BSclinical, BSclinical$X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years< 0) -->
+<!-- DD$label = 0 -->
+<!-- AL = subset(BSclinical, BSclinical$X5.year.survival.from.primary.diagnosis...Date.death.date.prim.diagn..1825.days...Days.differing.from.5.years> 0) -->
+<!-- AL$label = 1 -->
+<!-- BSclinical = rbind(DD, AL) -->
+<!-- BSclinical = merge(BSclinical, ica, by="sample") -->
+<!-- BSclinical <- BSclinical[sample(nrow(BSclinical)),] -->
+<!-- row.names(BSclinical) = BSclinical$sample -->
+<!-- BSclinical = BSclinical[,c(3:139)] -->
+<!-- smp_size <- floor(0.8 * nrow(BSclinical)) -->
+<!-- index <- sample(seq_len(nrow(BSclinical)),size=smp_size) -->
+<!-- train <- BSclinical[index, ] -->
+<!-- test <- BSclinical[-index, ]   -->
+<!-- ``` -->
+
+<!-- # Stage -->
+<!-- ```{r} -->
+<!-- BSclinical = clinical[c("sample", "dis.stage")] -->
+<!-- BSclinical = na.omit(BSclinical) -->
+<!-- BSclinical = merge(BSclinical, ica, by="sample") -->
+<!-- BSclinical <- BSclinical[sample(nrow(BSclinical)),] -->
+<!-- row.names(BSclinical) = BSclinical$sample -->
+<!-- BSclinical$label = BSclinical$dis.stage -->
+<!-- BSclinical = BSclinical[,c(3:139)] -->
+<!-- smp_size <- floor(0.8 * nrow(BSclinical)) -->
+<!-- index <- sample(seq_len(nrow(BSclinical)),size=smp_size) -->
+<!-- train <- BSclinical[index, ] -->
+<!-- test <- BSclinical[-index, ] -->
+<!-- ``` -->
+
+<!-- # prim.breslow.class -->
+<!-- ```{r} -->
+<!-- BSclinical = clinical[c("sample", "prim.breslow.class")] -->
+<!-- BSclinical = na.omit(BSclinical) -->
+<!-- BSclinical = merge(BSclinical, ica, by="sample") -->
+<!-- BSclinical <- BSclinical[sample(nrow(BSclinical)),] -->
+<!-- row.names(BSclinical) = BSclinical$sample -->
+<!-- BSclinical$label = BSclinical$prim.breslow.class -->
+<!-- BSclinical = BSclinical[,c(3:139)] -->
+<!-- smp_size <- floor(0.8 * nrow(BSclinical)) -->
+<!-- index <- sample(seq_len(nrow(BSclinical)),size=smp_size) -->
+<!-- train <- BSclinical[index, ] -->
+<!-- test <- BSclinical[-index, ]   -->
+<!-- ``` -->
+
+<!-- # clark -->
+<!-- ```{r} -->
+<!-- BSclinical = clinical[c("sample", "clark")] -->
+<!-- BSclinical = na.omit(BSclinical) -->
+<!-- BSclinical = merge(BSclinical, ica, by="sample") -->
+<!-- BSclinical <- BSclinical[sample(nrow(BSclinical)),] -->
+<!-- row.names(BSclinical) = BSclinical$sample -->
+<!-- BSclinical$label = BSclinical$clark -->
+<!-- BSclinical = BSclinical[,c(3:139)] -->
+<!-- smp_size <- floor(0.8 * nrow(BSclinical)) -->
+<!-- index <- sample(seq_len(nrow(BSclinical)),size=smp_size) -->
+<!-- train <- BSclinical[index, ] -->
+<!-- test <- BSclinical[-index, ]   -->
+<!-- ``` -->
+
+<!-- # clin.class -->
+<!-- ```{r} -->
+<!-- BSclinical = clinical[c("sample", "clin.class")] -->
+<!-- BSclinical = na.omit(BSclinical) -->
+<!-- BSclinical = merge(BSclinical, ica, by="sample") -->
+<!-- BSclinical <- BSclinical[sample(nrow(BSclinical)),] -->
+<!-- row.names(BSclinical) = BSclinical$sample -->
+<!-- BSclinical$label = BSclinical$clin.class -->
+<!-- BSclinical = BSclinical[,c(3:139)] -->
+<!-- BSclinical = subset(BSclinical, BSclinical$label != 'NM') -->
+<!-- BSclinical = subset(BSclinical, BSclinical$label != '') -->
+<!-- BSclinical$label = as.numeric(BSclinical$label) -->
+<!-- smp_size <- floor(0.8 * nrow(BSclinical)) -->
+<!-- index <- sample(seq_len(nrow(BSclinical)),size=smp_size) -->
+<!-- train <- BSclinical[index, ] -->
+<!-- test <- BSclinical[-index, ]   -->
+<!-- ``` -->
+
+<!-- # clin.class -->
+<!-- ```{r} -->
+<!-- BSclinical = clinical[c("sample", "Alive.2016.12.05_alive", "Alive.2016.12.05_nan")] -->
+<!-- BSclinical = na.omit(BSclinical) -->
+<!-- BSclinical = subset(BSclinical, BSclinical$Alive.2016.12.05_nan != 1) -->
+<!-- BSclinical = BSclinical[c("sample", "Alive.2016.12.05_alive")] -->
+<!-- BSclinical = merge(BSclinical, ica, by="sample") -->
+<!-- BSclinical <- BSclinical[sample(nrow(BSclinical)),] -->
+<!-- row.names(BSclinical) = BSclinical$sample -->
+<!-- BSclinical$label = BSclinical$Alive.2016.12.05_alive -->
+<!-- BSclinical = BSclinical[,c(3:139)] -->
+<!-- BSclinical$label = as.numeric(BSclinical$label) -->
+<!-- smp_size <- floor(0.8 * nrow(BSclinical)) -->
+<!-- index <- sample(seq_len(nrow(BSclinical)),size=smp_size) -->
+<!-- train <- BSclinical[index, ] -->
+<!-- test <- BSclinical[-index, ]   -->
+<!-- ``` -->
+
+# BRAF Mutation
+```{r}
+BSclinical = clinical[c("sample", "BRAF.status_WT", "BRAF.status_nan")]
+BSclinical = na.omit(BSclinical)
+BSclinical = subset(BSclinical, BSclinical$BRAF.status_nan != 1)
+BSclinical = BSclinical[c("sample", "BRAF.status_WT")]
+BSclinical = merge(BSclinical, ica, by="sample")
+BSclinical <- BSclinical[sample(nrow(BSclinical)),]
+row.names(BSclinical) = BSclinical$sample
+BSclinical$label = BSclinical$BRAF.status_WT
+BSclinical = BSclinical[,c(3:139)]
+BSclinical$label = as.numeric(BSclinical$label)
+smp_size <- floor(0.8 * nrow(BSclinical))
+index <- sample(seq_len(nrow(BSclinical)),size=smp_size)
+train <- BSclinical[index, ]
+test <- BSclinical[-index, ]  
+```
+
+# LASSO
+```{r}
+library(lars)
+library(glmnet)
+library(caret)
+
+cv.out =cv.glmnet(as.matrix(train[,1:136]), as.matrix(train$label),alpha =1,nfolds=10)
+plot(cv.out)
+cv.out$lambda.min
+```
+
+```{r}
+# Fitting
+model =glmnet(as.matrix(train[,1:136]),as.matrix(train$label),alpha=1,lambda=c(0.08226194))
+# Predict results
+results_prob <- predict(model, as.matrix(subset(test,select=c(1:136))),type='response')
+# Actual answers
+answers <- factor(test$label, levels=c(0,1))
+results <- round(results_prob)
+results <- factor(results, levels=c(0,1))
+# Accuracy calculation
+misClasificError <- mean(answers != results)
+# Collecting results
+acc <- 1-misClasificError
+# Confusion matrix
+cm <- confusionMatrix(data=results, reference=answers)
+fpr <- cm$table[2]/nrow(test)
+fnr <- cm$table[3]/nrow(test)
+# Average accuracy of the model
+print('accuracy:')
+acc
+# Confusion matrix and plots of fpr and fnr
+print('fpr:')
+fpr
+print('fnr:')
+fnr
+print('Last miss classification error:')
+misClasificError
+```
+
+confusion matrix of LASSO prediction
+```{r}
+print(cm)
+```
+
+variable importance
+```{r}
+print(coef(model))
+```
+
+## CART
+
+```{r}
+library(rpart)
+library(rpart.plot)
+library(caret)
+
+binary.model <- rpart(label ~ ., data=train,cp=0.02, method='class')
+rpart.plot(binary.model, digit = 3, fallen.leaves = T, varlen=0, type = 3, extra = 106,
+main="Response")
+
+```
+
+```{r}
+# Predict results
+results_prob <- predict(binary.model, test[,1:136], type='class')
+# Actual answers
+answers <- factor(test$label, levels=c(0,1))
+results <- factor(results_prob, levels=c(0,1))
+# Accuracy calculation
+misClasificError <- mean(answers != results)
+# Collecting results
+acc <- 1-misClasificError
+# Confusion matrix
+cm <- confusionMatrix(data=results, reference=answers)
+fpr <- cm$table[2]/nrow(test)
+fnr <- cm$table[3]/nrow(test)
+print('accuracy:')
+acc
+print('fpr:')
+mean(fpr)
+print('fnr:')
+mean(fnr)
+print('miss classification error:')
+misClasificError
+```
+
+```{r}
+print('confusion matrix:')
+cm
+print('variable importance:')
+varImp(binary.model)
+```
+
+## Random Forests
+```{r}
+library(randomForest)
+library(rpart.plot)
+library(caret)
+
+rf.model <- randomForest(label ~ ., data=train,mtry=4,importance=T)
+# Predict results
+results_prob <- predict(rf.model, newdata = test[,1:136], type='class')
+# Actual answers
+answers <- factor(test$label, levels=c(0,1))
+results <- round(results_prob)
+results <- factor(results, levels=c(0,1))
+# Accuracy calculation
+misClasificError <- mean(answers != results)
+# Collecting results
+acc <- 1-misClasificError
+# Confusion matrix
+cm <- confusionMatrix(data=results, reference=answers)
+fpr <- cm$table[2]/nrow(test)
+fnr <- cm$table[3]/nrow(test)
+print('accuracy:')
+acc
+print('fpr:')
+mean(fpr)
+print('fnr:')
+mean(fnr)
+print('miss classification error:')
+misClasificError
+```
+
+```{r}
+print('confusion matrix:')
+cm
+print('variable importance:')
+varImp(rf.model)
+
+
+```
+
+### gradient tree boosting
+```{r}
+library(gbm)
+library(rpart.plot)
+library(caret)
+
+gbm.model <- gbm(label ~ ., data=train,distribution = "gaussian", interaction.depth =4,n.trees =30000,shrinkage = 0.1,n.cores=2)
+# Predict results
+results_prob <- predict(gbm.model, newdata = test[,1:136], type="response",n.trees =30000)
+
+# Actual answers
+answers <- factor(test$label, levels=c(0,1))
+results <- round(results_prob)
+results <- factor(results, levels=c(0,1))
+# Accuracy calculation
+misClasificError <- mean(answers != results)
+# Collecting results
+acc <- 1-misClasificError
+# Confusion matrix
+cm <- confusionMatrix(data=results, reference=answers)
+fpr <- cm$table[2]/nrow(test)
+fnr <- cm$table[3]/nrow(test)
+print('accuracy:')
+acc
+print('fpr:')
+mean(fpr)
+print('fnr:')
+mean(fnr)
+print('miss classification error:')
+misClasificError
+```
+
+```{r}
+print('confusion matrix:')
+cm
+print('variable importance:')
+summary(gbm.model)
+```
+
+### SVM
+```{r}
+library(e1071)
+library(rpart.plot)
+library(caret)
+
+svm.model <- svm(label ~ ., data=train, type='C-classification', kernel='linear')
+# Predict results
+results_prob <- predict(svm.model, newdata = test[,1:136], type="C-classification")
+# Actual answers
+answers <- factor(test$label, levels=c(0,1))
+
+results <- factor(results_prob, levels=c(0,1))
+# Accuracy calculation
+misClasificError <- mean(answers != results)
+# Collecting results
+acc <- 1-misClasificError
+# Confusion matrix
+cm <- confusionMatrix(data=results, reference=answers)
+fpr <- cm$table[2]/nrow(test)
+fnr <- cm$table[3]/nrow(test)
+print('accuracy:')
+acc
+print('fpr:')
+mean(fpr)
+print('fnr:')
+mean(fnr)
+print('miss classification error:')
+misClasificError
+```
+
+```{r}
+print('confusion matrix:')
+cm
+```
+
