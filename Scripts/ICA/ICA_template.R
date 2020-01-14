@@ -15,7 +15,7 @@
 args = commandArgs(trailingOnly=TRUE)
 message(Sys.time())
 config_file=args[1]
-config = read.table(config_file,sep='\t',header=T, as.is = 1:3)
+config = read.table(config_file, sep='\t',header=T, as.is = 1:3)
 rownames(config)=config$argument
 
 exp_prefix=config['exp_prefix','value']

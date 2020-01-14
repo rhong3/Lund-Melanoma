@@ -1,3 +1,102 @@
+## ICA-ranked GSEA
+#' 
+#' Created on 1/14/2020
+#' 
+#' @author: RH
+#' 
+
+library(BiocManager)
+library('org.Hs.eg.db')
+library("reactome.db")
+library("ReactomePA")
+library("fgsea")
+
+todolist = function(ICAfile, mix_file){
+  tdlist = list()
+  i = 1
+  ICAfile=read.table(file=ICAfile,
+                      header=T,sep='\t',row.names = 1)
+  mix = read.delim(mix_file)
+  rownames(mix) = mix$X
+  rownames(ICAfile) = rownames(mix)
+  for (feature in colnames(ICAfile)){
+    sig_ICs = rownames(ICAfile[ICAfile[feature] > 50, ])
+    for (IC in sig_ICs){
+      tdlist[[i]] = c(IC, feature)
+      i = i+1
+    }
+  }
+  exp = t(data.frame(tdlist))
+  colnames(exp) = c('IC', 'Feature')
+  write.csv(exp, "~/documents/Lund_Melanoma/Results/proteomics/ICA/significant_IC_clinical.csv", row.names = FALSE)
+  
+  return(tdlist)
+}
+
+test = todolist("~/documents/Lund_Melanoma/Results/proteomics/ICA/ICA_proteomics_IC_Clinical_Correlation_P_Value_all.tsv",
+                "~/documents/Lund_Melanoma/Results/proteomics/ICA/ICA_proteomics_IC_mean_mixing_score.txt")
+
+GSEA = function(centroid_file, td_list, outdir){
+  centroid <- read.csv(centroid_file)
+  for (m in tdlist){
+    Gene_order = centroid[order(centroid[m[1]]),]
+    ENTREZID = mapIds(org.Hs.eg.db, Gene_order["Gene.name"], 'ENTREZID', 'SYMBOL')
+    Gene_order.temp <- setNames(as.numeric(Gene_order[m[1]]), unname(ENTREZID))
+    my_pathways <- reactomePathways(names(Gene_order.temp))
+    summary(sapply(my_pathways, length))
+    fgsea_reactome <- fgsea(pathways = my_pathways, 
+                            stats = Gene_order.temp,
+                            minSize=15,
+                            maxSize=500,
+                            nperm=100000)
+    fgsea_reactome <- na.omit(fgsea_reactome[order(pval), ])
+    fgsea_reactome$leadingEdge = as.character(fgsea_reactome$leadingEdge)
+    fgsea_reactome.sig = fgsea_reactome[fgsea_reactome$padj < 0.01,]
+    write.csv(fgsea_reactome, file = paste(outdir, m[1], ".csv", sep=''))
+    # pdf("~/Documents/Lund_Melanoma/proteomics/ICA/0403ICA/GSEA/Most_IC8_sig.pdf", paper = 'letter')
+    # plotEnrichment(my_pathways[[head(fgsea_reactome, 1)$pathway]], Gene_order.8) + labs(title=head(fgsea_reactome, 1)$pathway)
+    # dev.off()
+    
+    topPathwaysUp <- fgsea_reactome.sig[ES > 0][head(order(padj), n=20), pathway]
+    topPathwaysDown <- fgsea_reactome.sig[ES < 0][head(order(padj), n=20), pathway]
+    topPathways <- c(topPathwaysUp, rev(topPathwaysDown))
+    pdf(paste(outdir, m[1], "_sig.pdf"), width = 15, paper = 'a4r')
+    plotGseaTable(my_pathways[topPathways], Gene_order.temp, fgsea_reactome, 
+                  gseaParam = 0.5)
+    dev.off()
+  }
+  
+  
+  fgsea_reactome <- fgsea(pathways = my_pathways, 
+                          stats = Gene_order.ICN,
+                          minSize=15,
+                          maxSize=500,
+                          nperm=100000)
+  fgsea_reactome <- na.omit(fgsea_reactome[order(pval), ])
+  fgsea_reactome$leadingEdge = as.character(fgsea_reactome$leadingEdge)
+  fgsea_reactome.sig = fgsea_reactome[fgsea_reactome$padj < 0.01,]
+  write.csv(fgsea_reactome, file = paste("~/Documents/Lund_Melanoma/phospho/ICA/GSEA_ip/", ICM, ".csv"))
+  # pdf("~/Documents/Lund_Melanoma/proteomics/ICA/0403ICA/GSEA/Most_IC8_sig.pdf", paper = 'letter')
+  # plotEnrichment(my_pathways[[head(fgsea_reactome, 1)$pathway]], Gene_order.8) + labs(title=head(fgsea_reactome, 1)$pathway)
+  # dev.off()
+  
+  topPathwaysUp <- fgsea_reactome.sig[ES > 0][head(order(padj), n=20), pathway]
+  topPathwaysDown <- fgsea_reactome.sig[ES < 0][head(order(padj), n=20), pathway]
+  topPathways <- c(topPathwaysUp, rev(topPathwaysDown))
+  pdf(paste("~/Documents/Lund_Melanoma/phospho/ICA/GSEA_ip/", ICM, "_sig.pdf"), width = 15, paper = 'a4r')
+  plotGseaTable(my_pathways[topPathways], Gene_order.ICN, fgsea_reactome, 
+                gseaParam = 0.5)
+  dev.off()
+}
+
+HMP = function(){
+  
+}
+
+todolist = list(c())
+
+
+
 ICX = 'X4'
 ICM = 'IC4'
 ICN = 4
@@ -8,32 +107,7 @@ library('org.Hs.eg.db')
 library("reactome.db")
 library("ReactomePA")
 library("fgsea")
-J_Clean_proteomics_IC_centroid <- read.csv("~/Documents/Lund_Melanoma/phospho/ICA/Gene_phospho_ip_IC_Centroid.csv", row.names=1)
-Gene_order = J_Clean_proteomics_IC_centroid[order(J_Clean_proteomics_IC_centroid[[ICN]]),]
-ENTREZID = mapIds(org.Hs.eg.db, row.names(Gene_order), 'ENTREZID', 'SYMBOL')
-Gene_order.ICN <- setNames(as.numeric(Gene_order[[ICX]]), unname(ENTREZID))
-my_pathways <- reactomePathways(names(Gene_order.ICN))
-summary(sapply(my_pathways, length))
-fgsea_reactome <- fgsea(pathways = my_pathways, 
-                        stats = Gene_order.ICN,
-                        minSize=15,
-                        maxSize=500,
-                        nperm=100000)
-fgsea_reactome <- na.omit(fgsea_reactome[order(pval), ])
-fgsea_reactome$leadingEdge = as.character(fgsea_reactome$leadingEdge)
-fgsea_reactome.sig = fgsea_reactome[fgsea_reactome$padj < 0.01,]
-write.csv(fgsea_reactome, file = paste("~/Documents/Lund_Melanoma/phospho/ICA/GSEA_ip/", ICM, ".csv"))
-# pdf("~/Documents/Lund_Melanoma/proteomics/ICA/0403ICA/GSEA/Most_IC8_sig.pdf", paper = 'letter')
-# plotEnrichment(my_pathways[[head(fgsea_reactome, 1)$pathway]], Gene_order.8) + labs(title=head(fgsea_reactome, 1)$pathway)
-# dev.off()
 
-topPathwaysUp <- fgsea_reactome.sig[ES > 0][head(order(padj), n=20), pathway]
-topPathwaysDown <- fgsea_reactome.sig[ES < 0][head(order(padj), n=20), pathway]
-topPathways <- c(topPathwaysUp, rev(topPathwaysDown))
-pdf(paste("~/Documents/Lund_Melanoma/phospho/ICA/GSEA_ip/", ICM, "_sig.pdf"), width = 15, paper = 'a4r')
-plotGseaTable(my_pathways[topPathways], Gene_order.ICN, fgsea_reactome, 
-              gseaParam = 0.5)
-dev.off()
 
 ###################################################
 library("pheatmap", lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")

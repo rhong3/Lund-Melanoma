@@ -47,7 +47,7 @@ rownames(clinical) = clinical$sample
 his_clin = merge(clinical, histology, by=0, all=TRUE, suffixes = c("",""))
 rownames(his_clin) = his_clin$sample
 his_clin = his_clin[,-which(colnames(his_clin) %in% c("Row.names", "Case ID", "sample"))]
-write.csv(his_clin, "~/Documents/Lund_Melanoma/Data/clinial&histology.csv")
+write.csv(his_clin, "~/Documents/Lund_Melanoma/Data/clinical&histology.csv")
 
 
 # Proteomics
@@ -62,7 +62,7 @@ tumor.rm = tumor[tumor$`% Tumor content`<30,]$TumorID
 remove = c('Fake_sample', 'Fake_sample_1', 'Fake_sample_2', 'Fake_sample_3', 'REFERENCE2_3', 'REFERENCE2_2', 'REFERENCE2_1', 'REFERENCE2', 'MM1069', 'MM692_1', 'MM778_1', 'MM807_1', 'MM790_1', 'LG7438')
 prot.sample = subset(prot, select = !names(prot) %in% remove)
 prot.sample = subset(prot.sample, select = !names(prot.sample) %in% tumor.rm)
-prot_his_clin <- read.csv("~/Documents/Lund_Melanoma/Data/clinial&histology.csv", row.names=1)
+prot_his_clin <- read.csv("~/Documents/Lund_Melanoma/Data/clinical&histology.csv", row.names=1)
 prot.sample = subset(prot.sample, select = names(prot.sample) %in% c(intersect(colnames(prot.sample), rownames(prot_his_clin)), "Accession", "Gene name", "Description"))
 prot.sample = na.omit(prot.sample)
 write.csv(prot.sample, "~/Documents/Lund_Melanoma/Data/proteomics/proteomics.csv", row.names = FALSE)
@@ -70,7 +70,7 @@ prot.sample.ICA = select(prot.sample, -c("Gene name", "Description", "Accession"
 rownames(prot.sample.ICA) = prot.sample$Accession
 write.csv(prot.sample.ICA, "~/Documents/Lund_Melanoma/Data/proteomics/ICA_proteomics.csv", row.names = TRUE)
 prot_his_clin = prot_his_clin[intersect(colnames(prot.sample), rownames(prot_his_clin)), ]
-write.csv(prot_his_clin, "~/Documents/Lund_Melanoma/Data/proteomics/proteomics_clinial.csv")
+write.csv(prot_his_clin, "~/Documents/Lund_Melanoma/Data/proteomics/proteomics_clinical.csv")
 
 
 # Transcriptomics
@@ -78,7 +78,7 @@ Transcriptomics = read_excel("~/Documents/Lund_Melanoma/Data/transcriptomics/Tra
 colnames(Transcriptomics) = toupper(colnames(Transcriptomics))
 Transcriptomics = Transcriptomics[,-c(1:4,6,8,9)]
 colnames(Transcriptomics) = c("Gene name", "Description", c(colnames(Transcriptomics)[3:216]))
-Trans_his_clin <- read.csv("~/Documents/Lund_Melanoma/Data/clinial&histology.csv", row.names=1)
+Trans_his_clin <- read.csv("~/Documents/Lund_Melanoma/Data/clinical&histology.csv", row.names=1)
 Trans.sample = subset(Transcriptomics , select = names(Transcriptomics ) %in% c(intersect(colnames(Transcriptomics ), rownames(Trans_his_clin)), "Gene name", "Description"))
 Trans.sample = na.omit(Trans.sample)
 write.csv(Trans.sample, "~/Documents/Lund_Melanoma/Data/transcriptomics/transcriptomics.csv", row.names = FALSE)
@@ -86,7 +86,7 @@ Trans.sample.ICA = select(Trans.sample, -c("Gene name", "Description"))
 rownames(Trans.sample.ICA) = Trans.sample$`Gene name`
 write.csv(Trans.sample.ICA, "~/Documents/Lund_Melanoma/Data/transcriptomics/ICA_transcriptomics.csv", row.names = TRUE)
 Trans_his_clin = Trans_his_clin[intersect(colnames(Trans.sample), rownames(Trans_his_clin)), ]
-write.csv(Trans_his_clin, "~/Documents/Lund_Melanoma/Data/transcriptomics/transcriptomics_clinial.csv")
+write.csv(Trans_his_clin, "~/Documents/Lund_Melanoma/Data/transcriptomics/transcriptomics_clinical.csv")
 
 
 # Phospho
@@ -126,7 +126,7 @@ Phospho$MM807 = rowMeans(Phospho[c('MM807.1.', 'MM807.2.')], na.rm=TRUE)
 Phospho$MM808 = Phospho$MM808_LG
 Phospho = select(Phospho, -c(MM790.1., MM790.2., MM807.1., MM807.2., MM808_LG))
 colnames(Phospho) = c("Modified_sequence", "Accession", "Description", "Gene name", colnames(Phospho)[5:124])
-Phospho_his_clin <- read.csv("~/Documents/Lund_Melanoma/Data/clinial&histology.csv", row.names=1)
+Phospho_his_clin <- read.csv("~/Documents/Lund_Melanoma/Data/clinical&histology.csv", row.names=1)
 Phospho.sample = subset(Phospho , select = names(Phospho) %in% c(intersect(colnames(Phospho), rownames(Phospho_his_clin)), "Modified_sequence", "Accession", "Description", "Gene name"))
 Phospho.sample = na.omit(Phospho.sample)
 write.csv(Phospho.sample, "~/Documents/Lund_Melanoma/Data/phospho/phospho.csv", row.names = FALSE)
@@ -134,7 +134,7 @@ Phospho.sample.ICA = select(Phospho.sample, -c("Modified_sequence", "Accession",
 rownames(Phospho.sample.ICA) = Phospho.sample$`Modified_sequence`
 write.csv(Phospho.sample.ICA, "~/Documents/Lund_Melanoma/Data/phospho/ICA_phospho.csv", row.names = TRUE)
 Phospho_his_clin = Phospho_his_clin[intersect(colnames(Phospho.sample), rownames(Phospho_his_clin)), ]
-write.csv(Phospho_his_clin, "~/Documents/Lund_Melanoma/Data/phospho/phospho_clinial.csv")
+write.csv(Phospho_his_clin, "~/Documents/Lund_Melanoma/Data/phospho/phospho_clinical.csv")
 
   
   

@@ -38,7 +38,7 @@ source('./ICA_Clusters_Functions.R')
 # source('~/R_Functions/heatmap.3.R')
 
 clinical=read.table(file=clinical_data,
-                    header=T,sep='\t',row.names = 1)
+                    header=T,sep=',',row.names = 1)
 #dim(clinical)
 
 #ica_rdata='/media/lwk/lab/OV/retro/data/ov_pr_prosp_ICA.Rdata'
